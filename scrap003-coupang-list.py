@@ -2,6 +2,7 @@
 
 import requests
 from bs4 import BeautifulSoup
+import pandas as pd
 
 
 def get_soup_from_url(url):
@@ -61,7 +62,11 @@ def get_product_list_from_li_tag(tag):
 
 
 def save_to_csv(list_of_list):
-    print(list_of_list)
+
+    df = pd.DataFrame(list_of_list, columns=['상품명','가격','좋아요','이미지파일'])
+    df.to_csv('./data/coupang.csv', index=False, columns=['상품명','가격','좋아요','이미지파일'])
+
+    print('save to ./data/coupang.csv')
 
 
 def main():
