@@ -64,8 +64,10 @@ def get_product_list_from_li_tag(tag):
 def save_to_csv(list_of_list):
 
     df = pd.DataFrame(list_of_list, columns=['상품명','가격','좋아요','이미지파일'])
-    df.to_csv('./data/coupang.csv', index=False, columns=['상품명','가격','좋아요','이미지파일'])
+    df.to_csv('./data/coupang.csv', encoding='utf-8', index=False, columns=['상품명','가격','좋아요','이미지파일'])
 
+    # openpyxl 모듈 설치 필요 (pip install openpyxl)
+    df.to_excel('./data/coupang.xlsx', encoding='utf-8', index=False)
     print('save to ./data/coupang.csv')
 
 
@@ -73,7 +75,7 @@ def main():
 
     product_list = []
 
-    for page_num in range(1, 18):
+    for page_num in range(1, 2):
         soup = get_soup_from_url(
             'https://www.coupang.com/np/campaigns/82/components/202952?page='
             + str(page_num))
