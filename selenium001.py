@@ -3,12 +3,12 @@
 from selenium import webdriver
 import time
 
-browser = webdriver.Chrome('./chromedriver.exe')
+driver = webdriver.Chrome('./chromedriver.exe')
 
-browser.implicitly_wait(3)
+driver.implicitly_wait(3)
 
-browser.get('http://www.naver.com')
+driver.get('http://www.naver.com')
 
 time.sleep(5.0)
 
-browser.close()
+driver.close()
