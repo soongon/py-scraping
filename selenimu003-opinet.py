@@ -43,14 +43,22 @@ def main():
             time.sleep(3)
 
             html = driver.page_source
-            soup = BeautifulSoup(html)
+            soup = BeautifulSoup(html, 'lxml')
 
             # soup객체를 통해 데이터 파싱 수행
             # 주유소 기름값 정보를  데이터(list of list)로 확보
             final_oil_price_list.extend(parse_oil_price_per_gu(soup))
 
     print(final_oil_price_list)
+    save_to_file(final_oil_price_list)
     driver.close()
+
+
+def save_to_file(list_of_list):
+    import pandas as pd
+
+    df = pd.DataFrame(list_of_list, index=False)
+    df.to_csv('opinet.csv', index=False, encoding='utf-8')
 
 
 def parse_oil_price_per_gu(soup):
