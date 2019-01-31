@@ -27,28 +27,33 @@ def main():
 
     # 시선택 셀렉트박스에서 서울을 선택
     si_select = Select(driver.find_element_by_id('SIDO_NM0'))
-    si_select.select_by_index(1)
-
     # 구선택 셀렉트박스에서 강남구를 선택
     gu_select = Select(driver.find_element_by_id('SIGUNGU_NM0'))
-    gu_select.select_by_index(1)
 
-    driver.implicitly_wait(3)
-    time.sleep(2)
+    final_oil_price_list = []
 
-    html = driver.page_source
-    soup = BeautifulSoup(html)
+    for si_index in range(1, len(si_select.options)):
+        si_select = Select(driver.find_element_by_id('SIDO_NM0'))
+        gu_select = Select(driver.find_element_by_id('SIGUNGU_NM0'))
+        si_select.select_by_index(si_index)
+        time.sleep(3)
+        for gu_index in range(1, len(gu_select.options)):
+            gu_select = Select(driver.find_element_by_id('SIGUNGU_NM0'))
+            gu_select.select_by_index(gu_index)
+            time.sleep(3)
 
-    # soup객체를 통해 데이터 파싱 수행
-    # 주유소 기름값 정보를  데이터(list of list)로 확보
-    oil_price_list = []
-    oil_price_list = parse_oil_price(soup)
+            html = driver.page_source
+            soup = BeautifulSoup(html)
 
-    print(oil_price_list)
+            # soup객체를 통해 데이터 파싱 수행
+            # 주유소 기름값 정보를  데이터(list of list)로 확보
+            final_oil_price_list.extend(parse_oil_price_per_gu(soup))
+
+    print(final_oil_price_list)
     driver.close()
 
 
-def parse_oil_price(soup):
+def parse_oil_price_per_gu(soup):
 
     oil_price_list = []
     for tr in soup.find(id='body1').find_all('tr'):
