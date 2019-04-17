@@ -1,0 +1,88 @@
+
+import requests
+from bs4 import BeautifulSoup
+
+base_url = 'https://www.coupang.com/np/campaigns/82/components/202952'
+
+def connect_and_get_soup(url):
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.121 Safari/537.36'
+    }
+    res = requests.get(url, headers=headers)
+    return BeautifulSoup(res.text, 'lxml')
+
+
+def get_product_list_tag_from_coupang(soup):
+
+    tag_ul = soup.find(id='productList')
+
+    if tag_ul:
+        return tag_ul.find_all('li', {'class': 'baby-product'})
+    else:
+        return None
+
+
+def make_product_list_by_list_tag(li_tags):
+    product_list = []
+
+    for li in li_tags:
+        description = ''
+        price_normal = ''
+        price_subscription = ''
+        likes_count = ''
+        image_name = ''
+
+        try:
+            description = li.select_one('a > dl > dd > div.name').text.strip()
+        except:
+            return product_list
+        try:
+            price_normal = li.select_one('a > dl > dd > div.price-area > div:nth-child(1) > div.price > em > strong').text.replace(',', '')
+        except:
+            pass
+        try:
+            price_subscription = li.select_one('a > dl > dd > div.price-area > div:nth-child(2) > div > em > strong').text.replace(',', '')
+        except:
+            pass
+        try:
+            likes_count = li.select_one('a > dl > dd > div.other-info > div.rating-star > span.rating-total-count').text.strip()[1:-1]
+        except:
+            pass
+        try:
+            image_url = li.select_one('a > dl > dt > img')['src']
+            download_image_and_save_to_file('http:' + image_url)
+            image_name = image_url[-30:]
+        except Exception as e:
+            print('이미지 다운로드 에러', e)
+
+        product_list.append(
+            [description, price_normal, price_subscription, likes_count, image_name])
+
+    return product_list
+
+
+def download_image_and_save_to_file(file_url):
+    res = requests.get(file_url)
+
+    with open('./images/' + file_url[-30:], 'wb') as f:
+        f.write(res.content)
+
+
+def main():
+
+    product_list_full = []
+
+    for page_num in range(1, 20):
+        soup = connect_and_get_soup(base_url + '?page=' + str(page_num))
+        li_tags = get_product_list_tag_from_coupang(soup)
+        if not li_tags:
+            print('scrape finished..')
+            break
+
+        product_list = make_product_list_by_list_tag(li_tags)
+        product_list_full.extend(product_list)
+        print('scraped page ' + str(page_num))
+
+    print(len(product_list_full))
+
+main()
