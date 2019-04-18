@@ -1,0 +1,40 @@
+import time
+
+from selenium import webdriver
+from bs4 import BeautifulSoup
+from selenium.webdriver.support.select import Select
+
+def scrap_oil_price(html):
+    soup = BeautifulSoup(html, 'lxml')
+    print('파싱완료.. 이중리스트에 저장')
+
+
+def main():
+    options = webdriver.ChromeOptions()
+    # options.add_argument('headless')
+    # options.add_argument('window-size=1920x1080')
+
+    driver = webdriver.Chrome('./chromedriver', options=options)
+    driver.implicitly_wait(3)
+
+    driver.get('http://www.opinet.co.kr/searRgSelect.do')
+
+    select_sido = Select(driver.find_element_by_id('SIDO_NM0'))
+    select_sigungu = Select(driver.find_element_by_id('SIGUNGU_NM0'))
+
+    for sido_index in range(1, len(select_sido.options)):
+        select_sido = Select(driver.find_element_by_id('SIDO_NM0'))
+        select_sigungu = Select(driver.find_element_by_id('SIGUNGU_NM0'))
+        select_sido.select_by_index(sido_index)
+        time.sleep(1)
+        for sigungu_index in range(1, len(select_sigungu.options)):
+            select_sigungu = Select(driver.find_element_by_id('SIGUNGU_NM0'))
+            select_sigungu.select_by_index(sigungu_index)
+            time.sleep(1)
+
+            scrap_oil_price(driver.page_source)
+
+    driver.close()
+
+
+main()
